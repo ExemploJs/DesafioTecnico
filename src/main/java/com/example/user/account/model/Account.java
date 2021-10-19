@@ -1,8 +1,12 @@
-package com.example.account.model;
+package com.example.user.account.model;
+
+import com.example.user.model.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -18,6 +22,11 @@ public class Account implements Serializable {
     private String accountDigit;
     private String agencyDigit;
     private BigDecimal balance;
+    private boolean active;
+
+    @OneToOne
+    @JsonIgnore
+    private User user;
 
     public String getAccountNumber() {
         return accountNumber;
@@ -59,16 +68,32 @@ public class Account implements Serializable {
         this.balance = balance;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-        return id == account.id && Objects.equals(accountNumber, account.accountNumber) && Objects.equals(agency, account.agency) && Objects.equals(accountDigit, account.accountDigit) && Objects.equals(agencyDigit, account.agencyDigit) && Objects.equals(balance, account.balance);
+        return id == account.id && active == account.active && Objects.equals(accountNumber, account.accountNumber) && Objects.equals(agency, account.agency) && Objects.equals(accountDigit, account.accountDigit) && Objects.equals(agencyDigit, account.agencyDigit) && Objects.equals(balance, account.balance) && Objects.equals(user, account.user);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, accountNumber, agency, accountDigit, agencyDigit, balance);
+        return Objects.hash(id, accountNumber, agency, accountDigit, agencyDigit, balance, active, user);
     }
 }
