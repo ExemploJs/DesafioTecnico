@@ -35,4 +35,8 @@ public class UserAccountService {
         final Account account = this.accountRepository.findByUserId(userId);
         account.setActive(false);
     }
+
+    public Account getAccount(final Long id) {
+        return this.accountRepository.findByUserId(id);
+    }
 }

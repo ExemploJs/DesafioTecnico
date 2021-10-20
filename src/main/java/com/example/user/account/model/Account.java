@@ -15,7 +15,8 @@ import java.util.Objects;
 public class Account implements Serializable {
 
     @Id @GeneratedValue
-    private long id;
+    @JsonIgnore
+    private Long id;
 
     private String accountNumber;
     private String agency;
@@ -27,6 +28,14 @@ public class Account implements Serializable {
     @OneToOne
     @JsonIgnore
     private User user;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getAccountNumber() {
         return accountNumber;
@@ -84,12 +93,33 @@ public class Account implements Serializable {
         this.active = active;
     }
 
+    public boolean isBalanceGreaterThanZero() {
+        return this.balance.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public boolean isBalanceGreaterThanWithdrawValue(final BigDecimal withdrawValue) {
+        return this.balance.compareTo(withdrawValue) > 0;
+    }
+
+    public void withdraw(final BigDecimal value) {
+        if (isBalanceGreaterThanZero() && isBalanceGreaterThanWithdrawValue(value)) {
+            setBalance(getBalance().subtract(value));
+            return;
+        }
+
+        throw new RuntimeException("O saldo para saque é inferior");
+    }
+
+    public void deposit(final BigDecimal value) {
+        setBalance(getBalance().add(value));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Account account = (Account) o;
-        return id == account.id && active == account.active && Objects.equals(accountNumber, account.accountNumber) && Objects.equals(agency, account.agency) && Objects.equals(accountDigit, account.accountDigit) && Objects.equals(agencyDigit, account.agencyDigit) && Objects.equals(balance, account.balance) && Objects.equals(user, account.user);
+        return active == account.active && Objects.equals(id, account.id) && Objects.equals(accountNumber, account.accountNumber) && Objects.equals(agency, account.agency) && Objects.equals(accountDigit, account.accountDigit) && Objects.equals(agencyDigit, account.agencyDigit) && Objects.equals(balance, account.balance) && Objects.equals(user, account.user);
     }
 
     @Override

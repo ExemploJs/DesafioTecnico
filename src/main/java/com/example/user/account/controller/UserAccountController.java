@@ -4,10 +4,9 @@ import com.example.user.account.model.Account;
 import com.example.user.account.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 public class UserAccountController {
 
     private final UserAccountService userAccountService;
@@ -27,5 +26,12 @@ public class UserAccountController {
     @ResponseStatus(HttpStatus.OK)
     public void inactivate(@PathVariable("id") final Long id) {
         this.userAccountService.inactivate(id);
+    }
+
+    @GetMapping("/user/{id}/account")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public Account get(@PathVariable("id") final Long id) {
+        return this.userAccountService.getAccount(id);
     }
 }
