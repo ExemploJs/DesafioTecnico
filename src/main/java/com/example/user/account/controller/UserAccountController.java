@@ -17,7 +17,7 @@ public class UserAccountController {
     }
 
     @PostMapping("/user/{id}/account")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public void create(@PathVariable("id") final Long id, @RequestBody final Account account) {
         this.userAccountService.create(id, account);
     }

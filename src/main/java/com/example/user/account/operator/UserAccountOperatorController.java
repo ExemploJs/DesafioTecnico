@@ -1,13 +1,12 @@
 package com.example.user.account.operator;
 
 import com.example.user.account.operator.request.BillRequest;
+import com.example.user.account.operator.request.RepresentativeRequest;
 import com.example.user.account.operator.request.TransferRequest;
 import com.example.user.account.operator.service.UserAccountOperatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-
-import java.math.BigDecimal;
 
 @RestController
 public class UserAccountOperatorController {
@@ -21,14 +20,14 @@ public class UserAccountOperatorController {
 
     @PutMapping("/account/{userId}/withdraw")
     @ResponseStatus(HttpStatus.OK)
-    public void withdraw(@PathVariable("userId") final Long userId, final BigDecimal value) {
-        this.service.withdraw(userId, value);
+    public void withdraw(@PathVariable("userId") final Long userId, @RequestBody final RepresentativeRequest request) {
+        this.service.withdraw(userId, request.getValue());
     }
 
     @PutMapping("/account/{userId}/deposit")
     @ResponseStatus(HttpStatus.OK)
-    public void deposit(@PathVariable("userId") final Long userId, final BigDecimal value) {
-        this.service.deposit(userId, value);
+    public void deposit(@PathVariable("userId") final Long userId, @RequestBody final RepresentativeRequest request) {
+        this.service.deposit(userId, request.getValue());
     }
 
     @PutMapping("/account/{fromUserId}/transfer/{toUserId}")
