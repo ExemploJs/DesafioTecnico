@@ -31,6 +31,13 @@ public class User {
         this.userName = userName;
     }
 
+    public User() {
+    }
+
+    public User(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
