@@ -1,7 +1,6 @@
 package com.example.user.producer;
 
-import com.example.user.history.model.History;
-import com.example.user.history.model.history.request.HistoryRequest;
+import com.example.user.history.request.HistoryRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,10 +20,10 @@ public class HistoryProducer {
     }
 
     public void send(final HistoryRequest history) {
-        final ObjectMapper mapper = new ObjectMapper();
         try {
+            final ObjectMapper mapper = new ObjectMapper();
             final String jsonInString = mapper.writeValueAsString(history);
-            System.out.println("Payload enviado: {} " + jsonInString);
+
             this.kafkaTemplate.send(this.topicName, jsonInString);
         } catch (final JsonProcessingException e) {
             throw new RuntimeException("Ocorreu um erro", e.getCause());

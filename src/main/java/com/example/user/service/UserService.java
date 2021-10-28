@@ -1,7 +1,6 @@
 package com.example.user.service;
 
 import com.example.user.model.User;
-import com.example.user.producer.HistoryProducer;
 import com.example.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +24,11 @@ public class UserService {
 
     public User findByUserName(final String userName) {
         return this.repository.findByUserName(userName);
+    }
+
+    public User findById(final Long id) {
+        return this.repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
     }
 
     public List<User> findAll() {

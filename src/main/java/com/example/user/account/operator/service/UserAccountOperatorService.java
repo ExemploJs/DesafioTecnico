@@ -5,7 +5,7 @@ import com.example.user.account.operator.request.BillRequest;
 import com.example.user.account.operator.request.TransferRequest;
 import com.example.user.account.repository.AccountRepository;
 import com.example.user.history.model.History;
-import com.example.user.history.model.history.request.HistoryRequest;
+import com.example.user.history.request.HistoryRequest;
 import com.example.user.producer.HistoryProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

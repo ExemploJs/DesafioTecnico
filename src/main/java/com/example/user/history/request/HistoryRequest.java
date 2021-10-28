@@ -1,26 +1,14 @@
-package com.example.user.history.model.history.request;
+package com.example.user.history.request;
 
-import com.example.user.history.model.History;
+import java.io.Serializable;
 
-public class HistoryRequest {
-
-    public enum Operation {
-        WITHDRAW, DEPOSIT, TRANSFERENCE, BILL_PAYMENT
-    }
+public class HistoryRequest implements Serializable {
 
     private String operation;
-
     private String message;
-
     private long userId;
 
     public HistoryRequest() {
-    }
-
-    public HistoryRequest(final String operation, String message, long userId) {
-        this.operation = operation;
-        this.message = message;
-        this.userId = userId;
     }
 
     public String getOperation() {
