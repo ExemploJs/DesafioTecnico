@@ -19,8 +19,8 @@ public class HistoryController {
         this.historyService = historyService;
     }
 
-    @GetMapping("/history/{userId}")
-    public List<History> findByUserId(@PathVariable("userId") final Long userId) {
-        return this.historyService.findByUserId(userId);
+    @GetMapping("/history/{accountId}")
+    public List<History> findByAccountId(@PathVariable("accountId") final Long userId) {
+        return this.historyService.findByAccountId(userId);
     }
 }

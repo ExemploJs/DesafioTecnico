@@ -1,6 +1,6 @@
 package com.example.user.history.model;
 
-import com.example.user.model.User;
+import com.example.user.account.model.Account;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;
@@ -34,14 +34,14 @@ public class History implements Serializable {
     private String message;
 
     @ManyToOne
-    private User user;
+    private Account account;
 
     public History() {}
 
-    public History(final Operation operation, final String message, final User user) {
+    public History(final Operation operation, final String message, final Account account) {
         this.operation = operation;
         this.message = message;
-        this.user = user;
+        this.account = account;
     }
 
     public Long getId() {
@@ -75,11 +75,11 @@ public class History implements Serializable {
         this.message = message;
     }
 
-    public User getUser() {
-        return user;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setUser(final User user) {
-        this.user = user;
+    public void setAccount(final Account account) {
+        this.account = account;
     }
 }

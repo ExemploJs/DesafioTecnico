@@ -34,18 +34,12 @@ public class UserAccountOperatorService {
                 String.format("Saque de %s realizado por %s", value.toString(), account.getUser().getUserName())));
     }
 
-    private HistoryRequest getHistoryRequest(final History.Operation operation, final Account account, final String message) {
-        final HistoryRequest history = new HistoryRequest();
-        history.setOperation(operation.toString());
-        history.setUserId(account.getUser().getId());
-        history.setMessage(message);
-        return history;
-    }
-
     public void deposit(final Long userId, final BigDecimal value) {
         final Account account = getAccount(userId);
         account.deposit(value);
         this.accountRepository.save(account);
+        this.historyProducer.send(getHistoryRequest(History.Operation.DEPOSIT, account,
+                String.format("Depósito de %s realizado por %s", value.toString(), account.getUser().getUserName())));
     }
 
     public void transfer(final Long fromUserId,
@@ -58,6 +52,16 @@ public class UserAccountOperatorService {
         final Account toAccount = getAccount(toUserId);
         toAccount.deposit(transferRequest.getTransferedValue());
         this.accountRepository.save(toAccount);
+
+        this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, fromAccount,
+                String.format("Enviado transferência de %s realizado por %s para %s",
+                        transferRequest.getTransferedValue().toString(),
+                        fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+
+        this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, toAccount,
+                String.format("Recebido Transferência de %s realizado por %s para %s",
+                        transferRequest.getTransferedValue().toString(),
+                        fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
     }
 
     public void payBill(final Long userId, final BillRequest billRequest) {
@@ -65,6 +69,14 @@ public class UserAccountOperatorService {
         account.withdraw(billRequest.getValue());
 
         this.accountRepository.save(account);
+    }
+
+    private HistoryRequest getHistoryRequest(final History.Operation operation, final Account account, final String message) {
+        final HistoryRequest history = new HistoryRequest();
+        history.setOperation(operation.toString());
+        history.setAccountId(account.getId());
+        history.setMessage(message);
+        return history;
     }
 
     private Account getAccount(final Long userId) {

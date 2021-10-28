@@ -17,7 +17,7 @@ public class HistoryService {
         this.repository = repository;
     }
 
-    public List<History> findByUserId(final Long userId) {
-        return this.repository.findByUserId(userId);
+    public List<History> findByAccountId(final Long accountId) {
+        return this.repository.findByAccountId(accountId);
     }
 }

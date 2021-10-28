@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface HistoryRepository extends CrudRepository<History, Long> {
 
-    @Query("select h from History h WHERE h.user.id = ?1")
-    List<History> findByUserId(final Long userId);
+    @Query("select h from History h WHERE h.account.id = ?1")
+    List<History> findByAccountId(final Long userId);
 }

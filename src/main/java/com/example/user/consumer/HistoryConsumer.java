@@ -1,9 +1,9 @@
 package com.example.user.consumer;
 
+import com.example.user.account.repository.AccountRepository;
 import com.example.user.history.model.History;
 import com.example.user.history.repository.HistoryRepository;
 import com.example.user.history.request.HistoryRequest;
-import com.example.user.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 public class HistoryConsumer {
 
     private final HistoryRepository historyRepository;
-    private final UserService userService;
+    private final AccountRepository accountRepository;
 
     @Autowired
     public HistoryConsumer(final HistoryRepository historyRepository,
-                           final UserService userService) {
+                           final AccountRepository accountRepository) {
         this.historyRepository = historyRepository;
-        this.userService = userService;
+        this.accountRepository = accountRepository;
     }
 
     @KafkaListener(topics = "test-topic")
@@ -35,7 +35,7 @@ public class HistoryConsumer {
 
     private History getHistory(HistoryRequest historyRequest) {
         final History history = new History();
-        history.setUser(this.userService.findById(historyRequest.getUserId()));
+        history.setAccount(this.accountRepository.findById(historyRequest.getAccountId()).get());
         history.setMessage(historyRequest.getMessage());
         history.setOperation(historyRequest.getOperation());
         return history;

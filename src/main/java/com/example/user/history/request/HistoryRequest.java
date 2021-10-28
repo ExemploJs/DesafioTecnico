@@ -6,7 +6,7 @@ public class HistoryRequest implements Serializable {
 
     private String operation;
     private String message;
-    private long userId;
+    private long accountId;
 
     public HistoryRequest() {
     }
@@ -27,11 +27,11 @@ public class HistoryRequest implements Serializable {
         this.message = message;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getAccountId() {
+        return accountId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setAccountId(long accountId) {
+        this.accountId = accountId;
     }
 }
