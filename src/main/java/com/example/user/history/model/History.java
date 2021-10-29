@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,11 +17,21 @@ import java.util.stream.Collectors;
 public class History implements Serializable {
 
     public enum Operation {
-        WITHDRAW, DEPOSIT, TRANSFERENCE, BILL_PAYMENT;
+        WITHDRAW("Saque"), DEPOSIT("Depósito"), TRANSFERENCE("Transferência"), BILL_PAYMENT("Pagamento de Contas");
 
+
+        private final String operation;
+
+        Operation(final String op) {
+            this.operation = op;
+        }
 
         public static List<Operation> getAllValues() {
             return Arrays.stream(Operation.values()).collect(Collectors.toList());
+        }
+
+        public String getOperation() {
+            return this.operation;
         }
     }
 
@@ -36,12 +47,15 @@ public class History implements Serializable {
     @ManyToOne
     private Account account;
 
+    private BigDecimal currentBalance;
+
     public History() {}
 
-    public History(final Operation operation, final String message, final Account account) {
+    public History(final Operation operation, final String message, final Account account, final BigDecimal currentBalance) {
         this.operation = operation;
         this.message = message;
         this.account = account;
+        this.currentBalance = currentBalance;
     }
 
     public Long getId() {
@@ -81,5 +95,13 @@ public class History implements Serializable {
 
     public void setAccount(final Account account) {
         this.account = account;
+    }
+
+    public BigDecimal getCurrentBalance() {
+        return currentBalance;
+    }
+
+    public void setCurrentBalance(BigDecimal currentBalance) {
+        this.currentBalance = currentBalance;
     }
 }

@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import static com.example.util.Utils.parseData;
+
 @Component
 public class HistoryConsumer {
 
@@ -33,15 +35,11 @@ public class HistoryConsumer {
         this.historyRepository.save(history);
     }
 
-    private History getHistory(HistoryRequest historyRequest) {
+    private History getHistory(final HistoryRequest historyRequest) {
         final History history = new History();
         history.setAccount(this.accountRepository.findById(historyRequest.getAccountId()).get());
         history.setMessage(historyRequest.getMessage());
         history.setOperation(historyRequest.getOperation());
         return history;
-    }
-
-    private String parseData(final String data) {
-        return data.substring(1, data.length() - 1).replaceAll("\\\\", "");
     }
 }

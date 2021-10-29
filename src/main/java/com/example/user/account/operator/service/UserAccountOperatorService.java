@@ -3,41 +3,41 @@ package com.example.user.account.operator.service;
 import com.example.user.account.model.Account;
 import com.example.user.account.operator.request.BillRequest;
 import com.example.user.account.operator.request.TransferRequest;
-import com.example.user.account.repository.AccountRepository;
+import com.example.user.account.service.AccountService;
 import com.example.user.history.model.History;
 import com.example.user.history.request.HistoryRequest;
 import com.example.user.producer.HistoryProducer;
+import com.example.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @Service
 public class UserAccountOperatorService {
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final HistoryProducer historyProducer;
 
     @Autowired
-    public UserAccountOperatorService(final AccountRepository accountRepository,
+    public UserAccountOperatorService(final AccountService accountService,
                                       final HistoryProducer historyProducer) {
-        this.accountRepository = accountRepository;
+        this.accountService = accountService;
         this.historyProducer = historyProducer;
     }
 
     public void withdraw(final Long userId, final BigDecimal value) {
-        final Account account = getAccount(userId);
+        final Account account = this.accountService.findByUserId(userId);
         account.withdraw(value);
-        this.accountRepository.save(account);
+        this.accountService.save(account);
         this.historyProducer.send(getHistoryRequest(History.Operation.WITHDRAW, account,
                 String.format("Saque de %s realizado por %s", value.toString(), account.getUser().getUserName())));
     }
 
     public void deposit(final Long userId, final BigDecimal value) {
-        final Account account = getAccount(userId);
+        final Account account = this.accountService.findByUserId(userId);
         account.deposit(value);
-        this.accountRepository.save(account);
+        this.accountService.save(account);
         this.historyProducer.send(getHistoryRequest(History.Operation.DEPOSIT, account,
                 String.format("Depósito de %s realizado por %s", value.toString(), account.getUser().getUserName())));
     }
@@ -45,13 +45,13 @@ public class UserAccountOperatorService {
     public void transfer(final Long fromUserId,
                          final Long toUserId,
                          final TransferRequest transferRequest) {
-        final Account fromAccount = getAccount(fromUserId);
+        final Account fromAccount = this.accountService.findByUserId(fromUserId);
         fromAccount.withdraw(transferRequest.getTransferedValue());
-        this.accountRepository.save(fromAccount);
+        this.accountService.save(fromAccount);
 
-        final Account toAccount = getAccount(toUserId);
+        final Account toAccount = this.accountService.findByUserId(toUserId);
         toAccount.deposit(transferRequest.getTransferedValue());
-        this.accountRepository.save(toAccount);
+        this.accountService.save(toAccount);
 
         this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, fromAccount,
                 String.format("Enviado transferência de %s realizado por %s para %s",
@@ -65,24 +65,22 @@ public class UserAccountOperatorService {
     }
 
     public void payBill(final Long userId, final BillRequest billRequest) {
-        final Account account = this.accountRepository.findByUserId(userId);
+        final Account account = this.accountService.findByUserId(userId);
         account.withdraw(billRequest.getValue());
 
-        this.accountRepository.save(account);
+        this.accountService.save(account);
+        this.historyProducer.send(getHistoryRequest(History.Operation.BILL_PAYMENT, account,
+                String.format("Pagamento de Conta de %s realizado por %s",
+                        Utils.getValueInBRLFormattedCurrency(billRequest.getValue()),
+                        account.getUser().getUserName())));
     }
 
-    private HistoryRequest getHistoryRequest(final History.Operation operation, final Account account, final String message) {
+    private HistoryRequest getHistoryRequest(final History.Operation historyOperation, final Account account, final String message) {
         final HistoryRequest history = new HistoryRequest();
-        history.setOperation(operation.toString());
+        history.setOperation(historyOperation.getOperation());
         history.setAccountId(account.getId());
+        history.setCurrentBalance(account.getBalance());
         history.setMessage(message);
         return history;
     }
-
-    private Account getAccount(final Long userId) {
-        return Optional
-                .of(this.accountRepository.findByUserId(userId))
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
-    }
-
 }

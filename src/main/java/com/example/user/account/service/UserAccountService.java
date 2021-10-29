@@ -1,5 +1,6 @@
 package com.example.user.account.service;
 
+import com.example.exception.UserNotFoundException;
 import com.example.user.account.model.Account;
 import com.example.user.account.repository.AccountRepository;
 import com.example.user.model.User;
@@ -12,31 +13,31 @@ import java.util.Optional;
 @Service
 public class UserAccountService {
 
-    private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private final UserRepository userRepository;
 
     @Autowired
-    public UserAccountService(final AccountRepository accountRepository, final UserRepository userRepository) {
-        this.accountRepository = accountRepository;
+    public UserAccountService(final AccountService accountService, final UserRepository userRepository) {
+        this.accountService = accountService;
         this.userRepository = userRepository;
     }
 
     public void create(final Long userId, final Account account) {
         final User user = Optional.of(this.userRepository.findById(userId))
                 .get()
-                .orElseThrow(() -> new RuntimeException("Nenhum usuário encontrado!"));
+                .orElseThrow(UserNotFoundException::new);
 
         account.setUser(user);
 
-        this.accountRepository.save(account);
+        this.accountService.save(account);
     }
 
     public void inactivate(final Long userId) {
-        final Account account = this.accountRepository.findByUserId(userId);
+        final Account account = this.accountService.findByUserId(userId);
         account.setActive(false);
     }
 
     public Account getAccount(final Long id) {
-        return this.accountRepository.findByUserId(id);
+        return this.accountService.findByUserId(id);
     }
 }

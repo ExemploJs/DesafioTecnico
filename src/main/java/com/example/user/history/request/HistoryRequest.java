@@ -1,12 +1,15 @@
 package com.example.user.history.request;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class HistoryRequest implements Serializable {
 
+    public static final long serialVersionUID = 1L;
     private String operation;
     private String message;
     private long accountId;
+    private BigDecimal currentBalance;
 
     public HistoryRequest() {
     }
@@ -33,5 +36,13 @@ public class HistoryRequest implements Serializable {
 
     public void setAccountId(long accountId) {
         this.accountId = accountId;
+    }
+
+    public BigDecimal getCurrentBalance() {
+        return currentBalance;
+    }
+
+    public void setCurrentBalance(BigDecimal currentBalance) {
+        this.currentBalance = currentBalance;
     }
 }
