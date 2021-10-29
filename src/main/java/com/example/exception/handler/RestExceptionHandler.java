@@ -1,25 +1,36 @@
 package com.example.exception.handler;
 
+import com.example.exception.AccountNotFoundException;
 import com.example.exception.UserNotFoundException;
-import org.springframework.http.HttpHeaders;
+import com.example.exception.handler.response.HandlerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.security.auth.login.AccountNotFoundException;
+import java.util.Date;
 
-@RestControllerAdvice
-public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+@ControllerAdvice
+public class RestExceptionHandler {
 
     @ExceptionHandler(value
             = { UserNotFoundException.class, AccountNotFoundException.class })
-    protected ResponseEntity<Object> handleNotFound(
-            final RuntimeException ex, final WebRequest request) {
-        final String bodyOfResponse = "This should be application specific";
-        return handleExceptionInternal(ex, bodyOfResponse,
-                new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    public ResponseEntity<?> handleNotFound(
+            final RuntimeException e, final WebRequest request) {
+        return new ResponseEntity<>(new HandlerResponse(HttpStatus.NOT_FOUND.value(),
+                new Date(), e.getMessage()), HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGlobally(
+            final Exception e, final WebRequest request) {
+        final HandlerResponse errorDetail = new HandlerResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new Date(),
+                e.getMessage());
+
+        return new ResponseEntity<>(errorDetail, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

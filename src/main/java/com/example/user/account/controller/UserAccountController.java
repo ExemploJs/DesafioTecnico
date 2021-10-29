@@ -1,6 +1,5 @@
 package com.example.user.account.controller;
 
-import com.example.exception.AccountException;
 import com.example.user.account.model.Account;
 import com.example.user.account.service.UserAccountService;
 import org.springframework.beans.factory.annotation.Autowired;

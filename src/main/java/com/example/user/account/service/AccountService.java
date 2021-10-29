@@ -1,6 +1,6 @@
 package com.example.user.account.service;
 
-import com.example.exception.AccountException;
+import com.example.exception.AccountNotFoundException;
 import com.example.user.account.model.Account;
 import com.example.user.account.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +27,6 @@ public class AccountService {
     public Account findByUserId(final Long userId) {
         return Optional
                 .of(this.repository.findByUserId(userId))
-                .orElseThrow(AccountException::new);
+                .orElseThrow(AccountNotFoundException::new);
     }
 }
