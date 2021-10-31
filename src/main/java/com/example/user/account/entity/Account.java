@@ -16,7 +16,6 @@ import java.util.Objects;
 public class Account implements Serializable {
 
     @Id @GeneratedValue
-    @JsonIgnore
     private Long id;
 
     private String accountNumber;
@@ -27,7 +26,6 @@ public class Account implements Serializable {
     private boolean active;
 
     @OneToOne
-    @JsonIgnore
     private User user;
 
     public Long getId() {

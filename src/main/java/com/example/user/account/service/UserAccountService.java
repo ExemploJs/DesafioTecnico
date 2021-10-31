@@ -11,13 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class UserAccountService {
-
     private final AccountService accountService;
     private final UserRepository userRepository;
 
@@ -47,23 +44,16 @@ public class UserAccountService {
     @Transactional
     public void inactivate(final Long userId) {
         try {
-            final List<Account> accounts = this.accountService.findByUserId(userId);
-            accounts.forEach(a -> a.setActive(false));
+            final Account account = this.accountService.findByUserId(userId);
+            account.setActive(false);
         } catch(final Exception e) {
             throw new APIException();
         }
     }
 
-    public List<AccountResponse> getAccounts(final Long id) {
-        return this.accountService.findByUserId(id)
-                .stream()
-                .map(this::getAccountResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional
-    public void deleteByUserId(final Long userId) {
-        this.accountService.deleteByUserId(userId);
+    public AccountResponse getAccount(final Long id) {
+        final Account account = this.accountService.findByUserId(id);
+        return this.getAccountResponse(account);
     }
 
     private Account getAccountEntity(final AccountCreationRequest request) {

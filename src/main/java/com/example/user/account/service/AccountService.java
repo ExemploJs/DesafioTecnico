@@ -25,18 +25,7 @@ public class AccountService {
         this.repository.save(account);
     }
 
-    public List<Account> findByUserId(final Long userId) {
+    public Account findByUserId(final Long userId) {
         return this.repository.findByUserId(userId);
-    }
-
-    public Account findActiveByUserId(final Long userId) {
-        return Optional
-                .of(this.repository.findActiveByUserId(userId))
-                .orElseThrow(AccountNotFoundException::new);
-    }
-
-    @Transactional
-    public void deleteByUserId(final Long userId) {
-        this.repository.deleteAll(this.repository.findByUserId(userId));
     }
 }

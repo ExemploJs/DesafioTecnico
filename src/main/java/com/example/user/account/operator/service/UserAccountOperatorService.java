@@ -36,7 +36,7 @@ public class UserAccountOperatorService {
 
     @Transactional
     public void withdraw(final Long userId, final BigDecimal value) {
-        final Account account = this.accountService.findActiveByUserId(userId);
+        final Account account = this.accountService.findByUserId(userId);
         account.withdraw(value);
 
         try {
@@ -54,7 +54,7 @@ public class UserAccountOperatorService {
     @Transactional
     public void deposit(final Long userId, final BigDecimal value) {
         try {
-            final Account account = this.accountService.findActiveByUserId(userId);
+            final Account account = this.accountService.findByUserId(userId);
             account.deposit(value);
             this.accountService.save(account);
             if (isKafkaEnabled) {
@@ -73,11 +73,11 @@ public class UserAccountOperatorService {
 
         validateIfBothUserIdsAreEqual(fromUserId, toUserId);
 
-        final Account fromAccount = this.accountService.findActiveByUserId(fromUserId);
+        final Account fromAccount = this.accountService.findByUserId(fromUserId);
         fromAccount.withdraw(transferRequest.getTransferedValue());
         this.accountService.save(fromAccount);
 
-        final Account toAccount = this.accountService.findActiveByUserId(toUserId);
+        final Account toAccount = this.accountService.findByUserId(toUserId);
         toAccount.deposit(transferRequest.getTransferedValue());
         this.accountService.save(toAccount);
 
@@ -97,7 +97,7 @@ public class UserAccountOperatorService {
     @Transactional
     public void payBill(final Long userId, final BillRequest billRequest) {
         this.validateBillRequest(billRequest);
-        final Account account = this.accountService.findActiveByUserId(userId);
+        final Account account = this.accountService.findByUserId(userId);
         account.withdraw(billRequest.getValue());
         this.accountService.save(account);
 
