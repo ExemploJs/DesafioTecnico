@@ -1,6 +1,7 @@
 package com.example.user.controller;
 
-import com.example.user.model.User;
+import com.example.user.request.UserRequest;
+import com.example.user.request.response.UserResponse;
 import com.example.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,23 +21,33 @@ public class UserController {
 
     @PostMapping("/user")
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody final User user) {
-        this.service.create(user);
+    public void create(@RequestBody final UserRequest request) {
+        this.service.create(request);
     }
 
     @GetMapping("/user/{userName}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public User get(@PathVariable("userName") final String userName) {
+    public UserResponse get(@PathVariable("userName") final String userName) {
         return this.service.findByUserName(userName);
     }
 
     @GetMapping("/user")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<User> get() {
+    public List<UserResponse> get() {
         return this.service.findAll();
     }
 
+    @DeleteMapping("/user/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable("userId") final Long userId) {
+        this.service.delete(userId);
+    }
 
+    @DeleteMapping("/user")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteAll() {
+        this.service.delete();
+    }
 }

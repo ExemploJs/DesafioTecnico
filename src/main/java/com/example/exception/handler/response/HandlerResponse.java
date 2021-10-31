@@ -11,6 +11,8 @@ public class HandlerResponse implements Serializable {
     private Date timestamp;
     private String message;
 
+    public HandlerResponse(){}
+
     public HandlerResponse(int code, Date timestamp, String message) {
         this.code = code;
         this.timestamp = timestamp;

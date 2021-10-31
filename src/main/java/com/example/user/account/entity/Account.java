@@ -1,6 +1,6 @@
-package com.example.user.account.model;
+package com.example.user.account.entity;
 
-import com.example.user.model.User;
+import com.example.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;

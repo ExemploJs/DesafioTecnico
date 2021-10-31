@@ -1,6 +1,6 @@
 package com.example.user.history.model;
 
-import com.example.user.account.model.Account;
+import com.example.user.account.entity.Account;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;

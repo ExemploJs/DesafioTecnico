@@ -1,12 +1,13 @@
 package com.example.user.account.service;
 
 import com.example.exception.AccountNotFoundException;
-import com.example.user.account.model.Account;
+import com.example.user.account.entity.Account;
 import com.example.user.account.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -24,9 +25,19 @@ public class AccountService {
         this.repository.save(account);
     }
 
-    public Account findByUserId(final Long userId) {
+    public List<Account> findByUserId(final Long userId) {
         return Optional
                 .of(this.repository.findByUserId(userId))
                 .orElseThrow(AccountNotFoundException::new);
+    }
+
+    public Account findActiveByUserId(final Long userId) {
+        return Optional
+                .of(this.repository.findActiveByUserId(userId))
+                .orElseThrow(AccountNotFoundException::new);
+    }
+
+    public void deleteByUserId(final Long userId) {
+        this.repository.deleteAll(this.repository.findByUserId(userId));
     }
 }

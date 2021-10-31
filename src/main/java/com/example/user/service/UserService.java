@@ -1,8 +1,11 @@
 package com.example.user.service;
 
+import com.example.exception.APIException;
 import com.example.exception.UserNotFoundException;
-import com.example.user.model.User;
+import com.example.user.entity.User;
 import com.example.user.repository.UserRepository;
+import com.example.user.request.UserRequest;
+import com.example.user.request.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,23 +23,50 @@ public class UserService {
         this.repository = repository;
     }
 
-    public void create(final User user) {
-        this.repository.save(user);
+    public void create(final UserRequest request) {
+        try {
+            final User user = new User();
+            user.setUserName(request.getUserName());
+
+            this.repository.save(user);
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
     }
 
-    public User findByUserName(final String userName) {
-        return Optional.ofNullable(this.repository.findByUserName(userName))
-                .orElseThrow(() -> new UserNotFoundException());
+    public UserResponse findByUserName(final String userName) {
+        final User user = Optional.ofNullable(this.repository.findByUserName(userName))
+                .orElseThrow(UserNotFoundException::new);
+        return new UserResponse(user.getUserName());
     }
 
-    public User findById(final Long id) {
-        return this.repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado!"));
+    public List<UserResponse> findAll() {
+        try {
+            final List<UserResponse> users = new ArrayList<>();
+            this.repository.findAll().forEach(user -> {
+                final UserResponse response = new UserResponse();
+                response.setUserName(user.getUserName());
+                users.add(response);
+            });
+            return users;
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
     }
 
-    public List<User> findAll() {
-        final List<User> users = new ArrayList<>();
-        this.repository.findAll().forEach(users::add);
-        return users;
+    public void delete(final Long userId) {
+        try {
+            this.repository.deleteById(userId);
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
+    }
+
+    public void delete() {
+        try {
+            this.repository.deleteAll();
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
     }
 }

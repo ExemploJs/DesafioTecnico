@@ -1,6 +1,4 @@
-package com.example.user.model;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package com.example.user.entity;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,7 +9,6 @@ import java.util.Objects;
 public class User {
 
     @Id @GeneratedValue
-    @JsonIgnore
     private Long id;
     private String userName;
 

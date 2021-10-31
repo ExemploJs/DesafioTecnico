@@ -1,6 +1,6 @@
 package com.example.user.account.operator.service;
 
-import com.example.user.account.model.Account;
+import com.example.user.account.entity.Account;
 import com.example.user.account.operator.request.BillRequest;
 import com.example.user.account.operator.request.TransferRequest;
 import com.example.user.account.service.AccountService;
@@ -27,7 +27,7 @@ public class UserAccountOperatorService {
     }
 
     public void withdraw(final Long userId, final BigDecimal value) {
-        final Account account = this.accountService.findByUserId(userId);
+        final Account account = this.accountService.findActiveByUserId(userId);
         account.withdraw(value);
         this.accountService.save(account);
         this.historyProducer.send(getHistoryRequest(History.Operation.WITHDRAW, account,
@@ -35,7 +35,7 @@ public class UserAccountOperatorService {
     }
 
     public void deposit(final Long userId, final BigDecimal value) {
-        final Account account = this.accountService.findByUserId(userId);
+        final Account account = this.accountService.findActiveByUserId(userId);
         account.deposit(value);
         this.accountService.save(account);
         this.historyProducer.send(getHistoryRequest(History.Operation.DEPOSIT, account,
@@ -45,11 +45,11 @@ public class UserAccountOperatorService {
     public void transfer(final Long fromUserId,
                          final Long toUserId,
                          final TransferRequest transferRequest) {
-        final Account fromAccount = this.accountService.findByUserId(fromUserId);
+        final Account fromAccount = this.accountService.findActiveByUserId(fromUserId);
         fromAccount.withdraw(transferRequest.getTransferedValue());
         this.accountService.save(fromAccount);
 
-        final Account toAccount = this.accountService.findByUserId(toUserId);
+        final Account toAccount = this.accountService.findActiveByUserId(toUserId);
         toAccount.deposit(transferRequest.getTransferedValue());
         this.accountService.save(toAccount);
 
@@ -65,7 +65,7 @@ public class UserAccountOperatorService {
     }
 
     public void payBill(final Long userId, final BillRequest billRequest) {
-        final Account account = this.accountService.findByUserId(userId);
+        final Account account = this.accountService.findActiveByUserId(userId);
         account.withdraw(billRequest.getValue());
 
         this.accountService.save(account);
