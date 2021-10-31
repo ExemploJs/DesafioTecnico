@@ -25,7 +25,8 @@ public class RestExceptionHandler {
     @ExceptionHandler(value
             = { AccountDoesntHaveBalanceException.class,
             FromUserIdCannotBeTheSameOfToUserIdException.class,
-            FieldCannotBeNullException.class})
+            FieldCannotBeNullException.class,
+            ValueCannotBeNegativeOrZeroException.class})
     public ResponseEntity<?> handleBusinessRuleError(
             final RuntimeException e, final WebRequest request) {
         return new ResponseEntity<>(new HandlerResponse(HttpStatus.BAD_REQUEST.value(),

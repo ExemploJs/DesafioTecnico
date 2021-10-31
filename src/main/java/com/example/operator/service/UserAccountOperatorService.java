@@ -4,6 +4,7 @@ import com.example.exception.APIException;
 import com.example.exception.FieldCannotBeNullException;
 import com.example.exception.FromUserIdCannotBeTheSameOfToUserIdException;
 import com.example.account.entity.Account;
+import com.example.exception.ValueCannotBeNegativeOrZeroException;
 import com.example.operator.request.BillRequest;
 import com.example.operator.request.TransferRequest;
 import com.example.account.service.AccountService;
@@ -36,6 +37,9 @@ public class UserAccountOperatorService {
 
     @Transactional
     public void withdraw(final Long userId, final BigDecimal value) {
+        validateIfObjIsNull(value);
+        validateIfValueIsNegativeOrZero(value);
+
         final Account account = this.accountService.findByUserId(userId);
         account.withdraw(value);
 
@@ -53,8 +57,12 @@ public class UserAccountOperatorService {
 
     @Transactional
     public void deposit(final Long userId, final BigDecimal value) {
+        validateIfObjIsNull(value);
+        validateIfValueIsNegativeOrZero(value);
+
+        final Account account = this.accountService.findByUserId(userId);
+
         try {
-            final Account account = this.accountService.findByUserId(userId);
             account.deposit(value);
             this.accountService.save(account);
             if (isKafkaEnabled) {
@@ -70,33 +78,40 @@ public class UserAccountOperatorService {
     public void transfer(final Long fromUserId,
                          final Long toUserId,
                          final TransferRequest transferRequest) {
-
+        validateIfTransferRequestIsFilled(transferRequest);
+        validateIfValueIsNegativeOrZero(transferRequest.getTransferedValue());
         validateIfBothUserIdsAreEqual(fromUserId, toUserId);
 
         final Account fromAccount = this.accountService.findByUserId(fromUserId);
-        fromAccount.withdraw(transferRequest.getTransferedValue());
-        this.accountService.save(fromAccount);
-
         final Account toAccount = this.accountService.findByUserId(toUserId);
-        toAccount.deposit(transferRequest.getTransferedValue());
-        this.accountService.save(toAccount);
+        try {
+            fromAccount.withdraw(transferRequest.getTransferedValue());
+            this.accountService.save(fromAccount);
 
-        if (isKafkaEnabled) {
-            this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, fromAccount,
-                    String.format("Enviado transferência de %s realizado por %s para %s",
-                            transferRequest.getTransferedValue().toString(),
-                            fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+            toAccount.deposit(transferRequest.getTransferedValue());
+            this.accountService.save(toAccount);
 
-            this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, toAccount,
-                    String.format("Recebido Transferência de %s realizado por %s para %s",
-                            transferRequest.getTransferedValue().toString(),
-                            fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+            if (isKafkaEnabled) {
+                this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, fromAccount,
+                        String.format("Enviado transferência de %s realizado por %s para %s",
+                                transferRequest.getTransferedValue().toString(),
+                                fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+
+                this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, toAccount,
+                        String.format("Recebido Transferência de %s realizado por %s para %s",
+                                transferRequest.getTransferedValue().toString(),
+                                fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+            }
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
         }
     }
 
     @Transactional
     public void payBill(final Long userId, final BillRequest billRequest) {
         this.validateBillRequest(billRequest);
+        this.validateIfValueIsNegativeOrZero(billRequest.getValue());
+
         final Account account = this.accountService.findByUserId(userId);
         account.withdraw(billRequest.getValue());
         this.accountService.save(account);
@@ -122,16 +137,34 @@ public class UserAccountOperatorService {
         return history;
     }
 
+    private void validateIfObjIsNull(final Object obj) {
+        if (Objects.isNull(obj)) {
+            throw new FieldCannotBeNullException("Há campos que necessitam de preenchimento para informações depósito/saque!");
+        }
+    }
+
     private void validateIfBothUserIdsAreEqual(Long fromUserId, Long toUserId) {
         if (fromUserId.equals(toUserId)) {
             throw new FromUserIdCannotBeTheSameOfToUserIdException();
         }
     }
 
+    private void validateIfTransferRequestIsFilled(final TransferRequest transferRequest) {
+        if (Objects.isNull(transferRequest) || Objects.isNull(transferRequest.getTransferedValue()) || Objects.isNull(transferRequest.getMessage())) {
+            throw new FieldCannotBeNullException("Há campos que necessitam de preenchimento para informações de transferência!");
+        }
+    }
+
     private void validateBillRequest(final BillRequest billRequest) {
-        if (Objects.isNull(billRequest.getBarCode()) || Objects.isNull(billRequest.getValue())
+        if (Objects.isNull(billRequest) || Objects.isNull(billRequest.getBarCode()) || Objects.isNull(billRequest.getValue())
                 || Objects.isNull(billRequest.getDescription())) {
             throw new FieldCannotBeNullException("Há campos que necessitam de preenchimento para informações de pagamento do boleto!");
+        }
+    }
+
+    private void validateIfValueIsNegativeOrZero(final BigDecimal value) {
+        if (value.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValueCannotBeNegativeOrZeroException();
         }
     }
 }
