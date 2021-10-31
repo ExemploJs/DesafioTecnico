@@ -38,16 +38,4 @@ public class UserController {
     public List<UserResponse> get() {
         return this.service.findAll();
     }
-
-    @DeleteMapping("/user/{userId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void delete(@PathVariable("userId") final Long userId) {
-        this.service.delete(userId);
-    }
-
-    @DeleteMapping("/user")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteAll() {
-        this.service.delete();
-    }
 }

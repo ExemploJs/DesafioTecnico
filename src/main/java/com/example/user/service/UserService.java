@@ -56,22 +56,4 @@ public class UserService {
             throw new APIException(e.getMessage());
         }
     }
-
-    @Transactional
-    public void delete(final Long userId) {
-        try {
-            this.repository.deleteById(userId);
-        } catch (final Exception e) {
-            throw new APIException(e.getMessage());
-        }
-    }
-
-    @Transactional
-    public void delete() {
-        try {
-            this.repository.deleteAll();
-        } catch (final Exception e) {
-            throw new APIException(e.getMessage());
-        }
-    }
 }

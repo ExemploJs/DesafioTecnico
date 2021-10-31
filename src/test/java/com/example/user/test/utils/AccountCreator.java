@@ -1,6 +1,6 @@
 package com.example.user.test.utils;
 
-import com.example.user.account.request.AccountCreationRequest;
+import com.example.account.request.AccountCreationRequest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
