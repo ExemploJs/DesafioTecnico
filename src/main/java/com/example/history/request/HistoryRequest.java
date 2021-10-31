@@ -1,12 +1,14 @@
 package com.example.history.request;
 
+import com.example.history.entity.History;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 public class HistoryRequest implements Serializable {
 
     public static final long serialVersionUID = 1L;
-    private String operation;
+    private History.Operation operation;
     private String message;
     private long accountId;
     private BigDecimal currentBalance;
@@ -14,11 +16,11 @@ public class HistoryRequest implements Serializable {
     public HistoryRequest() {
     }
 
-    public String getOperation() {
+    public History.Operation getOperation() {
         return operation;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(final History.Operation operation) {
         this.operation = operation;
     }
 

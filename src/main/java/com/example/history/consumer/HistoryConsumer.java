@@ -7,6 +7,7 @@ import com.example.history.request.HistoryRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,7 @@ public class HistoryConsumer {
         history.setAccount(this.accountRepository.findById(historyRequest.getAccountId()).get());
         history.setMessage(historyRequest.getMessage());
         history.setOperation(historyRequest.getOperation());
+        history.setCurrentBalance(historyRequest.getCurrentBalance());
         return history;
     }
 }

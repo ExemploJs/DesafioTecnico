@@ -48,7 +48,7 @@ public class UserAccountOperatorService {
 
             if (isKafkaEnabled) {
                 this.historyProducer.send(getHistoryRequest(History.Operation.WITHDRAW, account,
-                        String.format("Saque de %s realizado por %s", value.toString(), account.getUser().getUserName())));
+                        String.format("Saque de %s realizado por %s", value, account.getUser().getUserName())));
             }
         } catch (final Exception e) {
             throw new APIException(e.getMessage());
@@ -130,7 +130,7 @@ public class UserAccountOperatorService {
 
     private HistoryRequest getHistoryRequest(final History.Operation historyOperation, final Account account, final String message) {
         final HistoryRequest history = new HistoryRequest();
-        history.setOperation(historyOperation.getOperation());
+        history.setOperation(historyOperation);
         history.setAccountId(account.getId());
         history.setCurrentBalance(account.getBalance());
         history.setMessage(message);

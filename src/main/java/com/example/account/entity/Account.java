@@ -3,10 +3,7 @@ package com.example.account.entity;
 import com.example.exception.AccountDoesntHaveBalanceException;
 import com.example.user.entity.User;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -14,7 +11,7 @@ import java.util.Objects;
 @Entity
 public class Account implements Serializable {
 
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String accountNumber;
