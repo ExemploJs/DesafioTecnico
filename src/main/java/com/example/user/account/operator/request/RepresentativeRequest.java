@@ -11,6 +11,13 @@ public class RepresentativeRequest implements Serializable {
 
     private BigDecimal value;
 
+    public RepresentativeRequest() {
+    }
+
+    public RepresentativeRequest(final BigDecimal value) {
+        this.value = value;
+    }
+
     public BigDecimal getValue() {
         return value;
     }

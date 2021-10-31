@@ -16,4 +16,11 @@ public abstract class AccountCreator {
         return restTemplate.postForEntity(new URI(baseUrl),
                 new HttpEntity<>(request), String.class);
     }
+
+    public static ResponseEntity<String> create(final TestRestTemplate restTemplate, final int randomServerPort,
+                                                final AccountCreationRequest request, final String userId) throws URISyntaxException {
+        final String baseUrl = String.format("http://localhost:" + randomServerPort + "/user/%s/account", userId);
+        return restTemplate.postForEntity(new URI(baseUrl),
+                new HttpEntity<>(request), String.class);
+    }
 }

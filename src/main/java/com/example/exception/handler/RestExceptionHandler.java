@@ -1,7 +1,6 @@
 package com.example.exception.handler;
 
-import com.example.exception.AccountNotFoundException;
-import com.example.exception.UserNotFoundException;
+import com.example.exception.*;
 import com.example.exception.handler.response.HandlerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,16 @@ public class RestExceptionHandler {
             final RuntimeException e, final WebRequest request) {
         return new ResponseEntity<>(new HandlerResponse(HttpStatus.NOT_FOUND.value(),
                 new Date(), e.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value
+            = { AccountDoesntHaveBalanceException.class,
+            FromUserIdCannotBeTheSameOfToUserIdException.class,
+            FieldCannotBeNullException.class})
+    public ResponseEntity<?> handleBusinessRuleError(
+            final RuntimeException e, final WebRequest request) {
+        return new ResponseEntity<>(new HandlerResponse(HttpStatus.BAD_REQUEST.value(),
+                new Date(), e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

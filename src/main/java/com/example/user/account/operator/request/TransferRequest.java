@@ -10,11 +10,19 @@ public class TransferRequest implements Serializable {
     private String message;
     private BigDecimal transferedValue;
 
+    public TransferRequest() {
+    }
+
+    public TransferRequest(final String message, final BigDecimal transferedValue) {
+        this.message = message;
+        this.transferedValue = transferedValue;
+    }
+
     public String getMessage() {
         return message;
     }
 
-    public void setMessage(String message) {
+    public void setMessage(final String message) {
         this.message = message;
     }
 
@@ -22,7 +30,7 @@ public class TransferRequest implements Serializable {
         return transferedValue;
     }
 
-    public void setTransferedValue(BigDecimal transferedValue) {
+    public void setTransferedValue(final BigDecimal transferedValue) {
         this.transferedValue = transferedValue;
     }
 

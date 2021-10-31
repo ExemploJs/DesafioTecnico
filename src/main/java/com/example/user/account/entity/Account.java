@@ -1,5 +1,6 @@
 package com.example.user.account.entity;
 
+import com.example.exception.AccountDoesntHaveBalanceException;
 import com.example.user.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -107,7 +108,7 @@ public class Account implements Serializable {
             return;
         }
 
-        throw new RuntimeException("O saldo para saque é inferior");
+        throw new AccountDoesntHaveBalanceException("A conta não tem este valor para saque!");
     }
 
     public void deposit(final BigDecimal value) {

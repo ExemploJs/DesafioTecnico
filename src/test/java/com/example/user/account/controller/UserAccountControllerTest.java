@@ -14,6 +14,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 public class UserAccountControllerTest {
 
     @Autowired
@@ -52,7 +54,7 @@ public class UserAccountControllerTest {
     }
 
     @Test
-    public void inactivate() throws URISyntaxException {
+    public void inactivate() {
         final ResponseEntity<String> response = this.restTemplate.exchange("http://localhost:" + this.randomServerPort + "/user/1/account/inactivate",
                 HttpMethod.PUT, new HttpEntity<>(null), String.class);
 

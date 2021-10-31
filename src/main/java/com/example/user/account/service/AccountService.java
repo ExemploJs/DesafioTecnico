@@ -5,8 +5,8 @@ import com.example.user.account.entity.Account;
 import com.example.user.account.repository.AccountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,9 +26,7 @@ public class AccountService {
     }
 
     public List<Account> findByUserId(final Long userId) {
-        return Optional
-                .of(this.repository.findByUserId(userId))
-                .orElseThrow(AccountNotFoundException::new);
+        return this.repository.findByUserId(userId);
     }
 
     public Account findActiveByUserId(final Long userId) {
@@ -37,6 +35,7 @@ public class AccountService {
                 .orElseThrow(AccountNotFoundException::new);
     }
 
+    @Transactional
     public void deleteByUserId(final Long userId) {
         this.repository.deleteAll(this.repository.findByUserId(userId));
     }

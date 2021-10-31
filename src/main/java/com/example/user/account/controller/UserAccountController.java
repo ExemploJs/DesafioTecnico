@@ -43,5 +43,4 @@ public class UserAccountController {
     public void deleteByUserId(@PathVariable("id") final Long id) {
         this.userAccountService.deleteByUserId(id);
     }
-
 }

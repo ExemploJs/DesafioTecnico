@@ -1,5 +1,8 @@
 package com.example.user.account.operator.service;
 
+import com.example.exception.APIException;
+import com.example.exception.FieldCannotBeNullException;
+import com.example.exception.FromUserIdCannotBeTheSameOfToUserIdException;
 import com.example.user.account.entity.Account;
 import com.example.user.account.operator.request.BillRequest;
 import com.example.user.account.operator.request.TransferRequest;
@@ -9,13 +12,18 @@ import com.example.user.history.request.HistoryRequest;
 import com.example.user.producer.HistoryProducer;
 import com.example.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Service
 public class UserAccountOperatorService {
 
+    @Value("${kafka.enable}")
+    private boolean isKafkaEnabled;
     private final AccountService accountService;
     private final HistoryProducer historyProducer;
 
@@ -26,25 +34,45 @@ public class UserAccountOperatorService {
         this.historyProducer = historyProducer;
     }
 
+    @Transactional
     public void withdraw(final Long userId, final BigDecimal value) {
         final Account account = this.accountService.findActiveByUserId(userId);
         account.withdraw(value);
-        this.accountService.save(account);
-        this.historyProducer.send(getHistoryRequest(History.Operation.WITHDRAW, account,
-                String.format("Saque de %s realizado por %s", value.toString(), account.getUser().getUserName())));
+
+        try {
+            this.accountService.save(account);
+
+            if (isKafkaEnabled) {
+                this.historyProducer.send(getHistoryRequest(History.Operation.WITHDRAW, account,
+                        String.format("Saque de %s realizado por %s", value.toString(), account.getUser().getUserName())));
+            }
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
     }
 
+    @Transactional
     public void deposit(final Long userId, final BigDecimal value) {
-        final Account account = this.accountService.findActiveByUserId(userId);
-        account.deposit(value);
-        this.accountService.save(account);
-        this.historyProducer.send(getHistoryRequest(History.Operation.DEPOSIT, account,
-                String.format("Depósito de %s realizado por %s", value.toString(), account.getUser().getUserName())));
+        try {
+            final Account account = this.accountService.findActiveByUserId(userId);
+            account.deposit(value);
+            this.accountService.save(account);
+            if (isKafkaEnabled) {
+                this.historyProducer.send(getHistoryRequest(History.Operation.DEPOSIT, account,
+                        String.format("Depósito de %s realizado por %s", value.toString(), account.getUser().getUserName())));
+            }
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
     }
 
+    @Transactional
     public void transfer(final Long fromUserId,
                          final Long toUserId,
                          final TransferRequest transferRequest) {
+
+        validateIfBothUserIdsAreEqual(fromUserId, toUserId);
+
         final Account fromAccount = this.accountService.findActiveByUserId(fromUserId);
         fromAccount.withdraw(transferRequest.getTransferedValue());
         this.accountService.save(fromAccount);
@@ -53,26 +81,36 @@ public class UserAccountOperatorService {
         toAccount.deposit(transferRequest.getTransferedValue());
         this.accountService.save(toAccount);
 
-        this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, fromAccount,
-                String.format("Enviado transferência de %s realizado por %s para %s",
-                        transferRequest.getTransferedValue().toString(),
-                        fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+        if (isKafkaEnabled) {
+            this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, fromAccount,
+                    String.format("Enviado transferência de %s realizado por %s para %s",
+                            transferRequest.getTransferedValue().toString(),
+                            fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
 
-        this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, toAccount,
-                String.format("Recebido Transferência de %s realizado por %s para %s",
-                        transferRequest.getTransferedValue().toString(),
-                        fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+            this.historyProducer.send(getHistoryRequest(History.Operation.TRANSFERENCE, toAccount,
+                    String.format("Recebido Transferência de %s realizado por %s para %s",
+                            transferRequest.getTransferedValue().toString(),
+                            fromAccount.getUser().getUserName(), toAccount.getUser().getUserName())));
+        }
     }
 
+    @Transactional
     public void payBill(final Long userId, final BillRequest billRequest) {
+        this.validateBillRequest(billRequest);
         final Account account = this.accountService.findActiveByUserId(userId);
         account.withdraw(billRequest.getValue());
-
         this.accountService.save(account);
-        this.historyProducer.send(getHistoryRequest(History.Operation.BILL_PAYMENT, account,
-                String.format("Pagamento de Conta de %s realizado por %s",
-                        Utils.getValueInBRLFormattedCurrency(billRequest.getValue()),
-                        account.getUser().getUserName())));
+
+        try {
+            if (isKafkaEnabled) {
+                this.historyProducer.send(getHistoryRequest(History.Operation.BILL_PAYMENT, account,
+                        String.format("Pagamento de Conta de %s realizado por %s",
+                                Utils.getValueInBRLFormattedCurrency(billRequest.getValue()),
+                                account.getUser().getUserName())));
+            }
+        } catch (final Exception e) {
+            throw new APIException(e.getMessage());
+        }
     }
 
     private HistoryRequest getHistoryRequest(final History.Operation historyOperation, final Account account, final String message) {
@@ -82,5 +120,18 @@ public class UserAccountOperatorService {
         history.setCurrentBalance(account.getBalance());
         history.setMessage(message);
         return history;
+    }
+
+    private void validateIfBothUserIdsAreEqual(Long fromUserId, Long toUserId) {
+        if (fromUserId.equals(toUserId)) {
+            throw new FromUserIdCannotBeTheSameOfToUserIdException();
+        }
+    }
+
+    private void validateBillRequest(final BillRequest billRequest) {
+        if (Objects.isNull(billRequest.getBarCode()) || Objects.isNull(billRequest.getValue())
+                || Objects.isNull(billRequest.getDescription())) {
+            throw new FieldCannotBeNullException("Há campos que necessitam de preenchimento para informações de pagamento do boleto!");
+        }
     }
 }

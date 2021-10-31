@@ -8,6 +8,8 @@ import com.example.user.request.UserRequest;
 import com.example.user.request.response.UserResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,7 @@ public class UserService {
         this.repository = repository;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void create(final UserRequest request) {
         try {
             final User user = new User();
@@ -54,6 +57,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void delete(final Long userId) {
         try {
             this.repository.deleteById(userId);
@@ -62,6 +66,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void delete() {
         try {
             this.repository.deleteAll();

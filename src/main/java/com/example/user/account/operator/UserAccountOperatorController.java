@@ -44,5 +44,4 @@ public class UserAccountOperatorController {
                         @RequestBody final BillRequest billRequest) {
         this.service.payBill(userId, billRequest);
     }
-
 }
