@@ -1,6 +1,6 @@
 package com.example.history.controller;
 
-import com.example.history.entity.History;
+import com.example.history.HistoryResponse;
 import com.example.history.service.HistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class HistoryController {
     }
 
     @GetMapping("/history/{accountId}")
-    public List<History> findByAccountId(@PathVariable("accountId") final Long userId) {
-        return this.historyService.findByAccountId(userId);
+    public List<HistoryResponse> findByAccountId(@PathVariable("accountId") final Long accountId) {
+       return this.historyService.findByAccountId(accountId);
     }
 }
