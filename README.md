@@ -10,6 +10,10 @@ Deve ter gerado DesafioTecnico-0.0.1-SNAPSHOT.jar
 
 Certifique-se de estar com o Kafka rodando em sua máquina adequadamente no ambiente local. Para o projeto, foi setado a porta 9092 para uso deste.
 
+- Para rodar o kafka no docker, basta executar o docker-compose para este com o seguinte comando:
+
+- docker-compose -f docker-compose.yml up -d (-f para especificar o arquivo)
+
 # Notas de Desenvolvimento
 - Não foi feito a separação de testes unitários com testes integrados de modo que fosse possível rodar com goals separados.
 - Abandonado a ideia do uso do DirtiesContext, uma vez que "oneraria" a velocidade de run dos testes integrados. Já que para cada teste, individualmente, o contexto teria de subir e ser derrubado.
